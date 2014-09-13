@@ -1,0 +1,5 @@
+CreateTraining: width:50,height:30,type:simple_intensity
+Input: directory:/home/borowis/hackathon/linguahack/neural_network_encog/data/training, type:jpg
+Network: hidden1:100, hidden2:0
+Train: Mode:console, Minutes:1, StrategyError:0.05, StrategyCycles:50 
+Whatis: directory:/home/borowis/hackathon/linguahack/neural_network_encog/data/verification, type:jpg
