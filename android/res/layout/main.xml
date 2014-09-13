@@ -1,26 +1,48 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">>
-    <SurfaceView
-            android:id="@+id/surfaceView"
-            android:layout_width="fill_parent"
-            android:layout_height="150dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true">
-    </SurfaceView>
-    <Button
-            android:id="@+id/btnTakePicture"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             xmlns:tools="http://schemas.android.com/tools"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:id="@+id/layout"
+        >
+
+    <ImageButton
+            android:id="@+id/capture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/surfaceView"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
-            android:onClick="onClickPicture"
-            android:text="@string/take_picture">
-    </Button>
+            android:contentDescription="@string/capture"
+            android:layout_gravity="bottom|center"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/capture"
+            android:background="@drawable/empty"
+            />
 
-</LinearLayout>
+    <LinearLayout
+            android:id="@+id/buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:layout_marginBottom="10dp"
+            android:visibility="invisible" >
+
+        <ImageButton
+                android:id="@+id/recapture"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/recapture"
+                android:paddingRight="20dp"
+                android:src="@drawable/recapture"
+                android:background="@drawable/empty"
+                />
+
+        <ImageButton
+                android:id="@+id/finish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/finish"
+                android:paddingLeft="20dp"
+                android:src="@drawable/finish"
+                android:background="@drawable/empty"
+                />
+    </LinearLayout>
+
+</FrameLayout>
