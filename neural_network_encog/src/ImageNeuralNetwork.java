@@ -1,9 +1,16 @@
 import org.encog.EncogError;
+import org.encog.engine.network.activation.ActivationElliott;
+import org.encog.ml.train.strategy.Greedy;
 import org.encog.ml.train.strategy.ResetStrategy;
 import org.encog.neural.data.NeuralData;
 import org.encog.neural.data.basic.BasicNeuralData;
 import org.encog.neural.networks.BasicNetwork;
+import org.encog.neural.networks.layers.BasicLayer;
 import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
+import org.encog.neural.networks.training.strategy.SmartLearningRate;
+import org.encog.neural.networks.training.strategy.SmartMomentum;
+import org.encog.neural.pattern.ElmanPattern;
+import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.platformspecific.j2se.TrainingDialog;
 import org.encog.platformspecific.j2se.data.image.ImageMLData;
 import org.encog.platformspecific.j2se.data.image.ImageMLDataSet;
@@ -123,6 +130,10 @@ public class ImageNeuralNetwork
         {
             processWhatIs();
         }
+        else if (command.equals("save"))
+        {
+            processSave();
+        }
     }
 
     public void executeLine() throws IOException
@@ -213,16 +224,33 @@ public class ImageNeuralNetwork
         }
         final String strHidden1 = getArg("hidden1");
         final String strHidden2 = getArg("hidden2");
-        this.training.downsample(
-                this.downsampleHeight, this.downsampleWidth);
+        this.training.downsample(this.downsampleHeight, this.downsampleWidth);
         final int hidden1 = Integer.parseInt(strHidden1);
         final int hidden2 = Integer.parseInt(strHidden2);
-        this.network = EncogUtility.simpleFeedForward(
-                this.training.getInputSize(), hidden1, hidden2,
-                this.training.getIdealSize(), true
-        );
-        System.out.println("Created network: "
-                        + this.network.toString());
+
+        ElmanPattern pattern = new ElmanPattern();
+        pattern.setInputNeurons(this.training.getInputSize());
+        pattern.setOutputNeurons(this.training.getIdealSize());
+        pattern.addHiddenLayer(hidden1);
+        pattern.setActivationFunction(new ActivationElliott());
+
+        this.network = (BasicNetwork)pattern.generate();
+
+//        this.network = new BasicNetwork();
+//
+//        this.network.addLayer(new BasicLayer(null, true, this.downsampleHeight * this.downsampleWidth));
+//        this.network.addLayer(new BasicLayer(new ActivationElliott(), true, hidden1));
+//        this.network.addLayer(new BasicLayer(new ActivationElliott(), false, hidden2));
+//        this.network.addLayer(new BasicLayer(new ActivationElliott(), false, this.training.getIdealSize()));
+//
+//        this.network.getStructure().finalizeStructure();
+//        this.network.reset();
+
+//        this.network = EncogUtility.simpleFeedForward(
+//                this.training.getInputSize(), hidden1, hidden2,
+//                this.training.getIdealSize(), false
+//        );
+        System.out.println("Created network: " + this.network.toString());
     }
     private void processTrain() throws IOException {
         final String strMode = getArg("mode");
@@ -231,13 +259,10 @@ public class ImageNeuralNetwork
         final String strStrategyCycles = getArg("strategycycles");
         System.out.println("Training Beginning... Output patterns="
                         + this.outputCount);
-        final double strategyError =
-                Double.parseDouble(strStrategyError);
+        final double strategyError = Double.parseDouble(strStrategyError);
         final int strategyCycles = Integer.parseInt(strStrategyCycles);
-        final ResilientPropagation train =
-                new ResilientPropagation(this.network, this.training);
-        train.addStrategy(
-                new ResetStrategy(strategyError, strategyCycles));
+        final ResilientPropagation train = new ResilientPropagation(this.network, this.training);
+        train.addStrategy(new ResetStrategy(strategyError, strategyCycles));
         if (strMode.equalsIgnoreCase("gui")) {
             TrainingDialog.trainDialog(train, this.network, this.training);
         } else {
@@ -266,5 +291,9 @@ public class ImageNeuralNetwork
                             + fileName + ", it seems to be: "
                             + this.neuron2identity.get(winner));
         }
+    }
+    private void processSave()
+    {
+        EncogDirectoryPersistence.saveObject(new File("network.txt"), this.network);
     }
 }
