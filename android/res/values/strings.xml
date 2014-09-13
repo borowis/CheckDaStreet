@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CheckDaStreet</string>
+    <string name="take_picture">Picture</string>
+    <string name="start_record">Start</string>
+    <string name="stop_record">Stop</string>
+</resources>
