@@ -84,7 +84,7 @@ public class Cropping extends JPanel
         String result = JOptionPane.showInputDialog(this, label, "clipped image", JOptionPane.OK_CANCEL_OPTION);
 
         if (result != null && !result.isEmpty())
-            new FileSaver(clipped, result).save();
+            new FileSaver(BitmapResizer.fitToSize(clipped), result).save();
     }
 
     protected JPanel getUIPanel()
