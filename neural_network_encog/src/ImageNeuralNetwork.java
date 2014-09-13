@@ -187,7 +187,7 @@ public class ImageNeuralNetwork
             final Matcher m = p.matcher(fileName);
             if (m.matches())
             {
-                final String identity = m.toMatchResult().group(1);
+                final String identity = m.toMatchResult().group(1).toUpperCase();
                 final int idx = assignIdentity(identity);
                 final File file = new File(directory, fileName);
                 this.imageList.add(new ImagePair(file, idx));
