@@ -17,6 +17,8 @@ public class FileChooser extends JPanel
     JButton openButton;
     JTextArea log;
     JFileChooser fc;
+    JTextField chooserWidth;
+    JTextField chooserHeight;
 
     public FileChooser() {
         super(new BorderLayout());
@@ -51,9 +53,17 @@ public class FileChooser extends JPanel
         JPanel buttonPanel = new JPanel(); //use FlowLayout
         buttonPanel.add(openButton);
 
+        chooserHeight = new JTextField(5);
+        chooserWidth = new JTextField(5);
+
+        JPanel chooserPanel = new JPanel();
+        chooserPanel.add(chooserWidth);
+        chooserPanel.add(chooserHeight);
+
         //Add the buttons and the log to this panel.
         add(buttonPanel, BorderLayout.PAGE_START);
         add(logScrollPane, BorderLayout.CENTER);
+        add(chooserPanel, BorderLayout.PAGE_END);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -72,14 +82,13 @@ public class FileChooser extends JPanel
                         //This is where a real application would open the file.
                         log.append("Opening: " + file.getName() + "." + newline);
 
-                        Cropping cropping = new Cropping(ImageIO.read(file));
+                        Cropping cropping = new Cropping(ImageIO.read(file), Integer.parseInt(chooserWidth.getText()), Integer.parseInt(chooserHeight.getText()));
                         ClipMover clipMover = new ClipMover(cropping);
 
                         cropping.addMouseListener(clipMover);
                         cropping.addMouseMotionListener(clipMover);
 
                         JFrame f = new JFrame();
-                        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                         f.getContentPane().add(new JScrollPane(cropping));
                         f.getContentPane().add(cropping.getUIPanel(), "South");
                         f.setSize(700, 800);

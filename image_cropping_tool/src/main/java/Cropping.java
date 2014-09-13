@@ -11,13 +11,16 @@ public class Cropping extends JPanel
     BufferedImage image;
     Dimension size;
     Rectangle clip;
+    int clipWidth, clipHeight;
     boolean showClip;
 
-    public Cropping(BufferedImage image)
+    public Cropping(BufferedImage image, int clipWidth, int clipHeight)
     {
         this.image = image;
         size = new Dimension(image.getWidth(), image.getHeight());
         showClip = true;
+        this.clipWidth = clipWidth;
+        this.clipHeight = clipHeight;
     }
 
     protected void paintComponent(Graphics g)
@@ -57,7 +60,7 @@ public class Cropping extends JPanel
 
     private void createClip()
     {
-        clip = new Rectangle(20, 20);
+        clip = new Rectangle(clipWidth, clipHeight);
         clip.x = (getWidth() - clip.width)/2;
         clip.y = (getHeight() - clip.height)/2;
     }
@@ -110,23 +113,6 @@ public class Cropping extends JPanel
         panel.add(clipBox);
         panel.add(clip);
         return panel;
-    }
-
-    public static void main(String[] args) throws IOException
-    {
-        File file = new File("cropping.jpg");
-        Cropping test = new Cropping(ImageIO.read(file));
-        ClipMover mover = new ClipMover(test);
-        test.addMouseListener(mover);
-        test.addMouseMotionListener(mover);
-
-        JFrame f = new JFrame();
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.getContentPane().add(new JScrollPane(test));
-        f.getContentPane().add(test.getUIPanel(), "South");
-        f.setSize(700, 800);
-        f.setLocation(200,200);
-        f.setVisible(true);
     }
 }
 
