@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 
 import java.awt.Color;
 
-import java.io.File;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +24,8 @@ public class CharExtractor {
     private boolean endOfImage;//end of picture
     private boolean endOfRow;//end of current reading row
 
+    private String dir;
+
     /**
      * Creates new char extractor with soecified text image
      * @param imageWithChars - image with text
@@ -37,10 +39,10 @@ public class CharExtractor {
     }
 
     private boolean isWhite(Color p) {
-        return ((p.getRed()>=235)&&(p.getRed()>=235)&&(p.getRed()>=235));
+        return ((p.getRed()>=235)&&(p.getBlue()>=235)&&(p.getGreen()>=235));
     }
     private boolean isBlack(Color p) {
-        return ((p.getRed()<=20)&&(p.getRed()<=20)&&(p.getRed()<=20));
+        return ((p.getRed()<=20)&&(p.getGreen()<=20)&&(p.getBlue()<=20));
     }
 
     /**
@@ -193,9 +195,30 @@ public class CharExtractor {
         return trimedImages;
     }
 
+    public static void segmentation(File inputFile, String outputDir) {
+        try {
+            //проверяем, что если файл не существует то создаем его
+
+            BufferedImage img = ImageIO.read(inputFile);
+            CharExtractor ch=new CharExtractor(img);
+            List<BufferedImage> list=ch.extractCharImagesToRecognize();
+            for(int i=0;i<list.size();i++)
+            {
+                File outputfile = new File(outputDir+"//char_" +i+ ".png");
+                ImageIO.write(list.get(i),"png", outputfile);
+            }
+
+        } catch(IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     public static void main(String[] args) throws Exception {
         File f=new File("Input//5.jpg");
+        segmentation(f,"Output");
+
+        /*
         BufferedImage img=ImageIO.read(f);
         CharExtractor ch=new CharExtractor(img);
         List<BufferedImage> list=ch.extractCharImagesToRecognize();
@@ -205,5 +228,6 @@ public class CharExtractor {
             File outputfile = new File("Output//char_" +i+ ".png");
             ImageIO.write(list.get(i),"png", outputfile);
         }
+        */
     }
 }
