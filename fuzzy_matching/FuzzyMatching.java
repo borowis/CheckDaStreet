@@ -1,17 +1,38 @@
 package fuzzymatching;
 
+import java.util.Scanner;
+import java.io.FileReader;
+import java.io.FileNotFoundException;
+
 public class FuzzyMatching {
 
-  private String str1, str2;
+    private String str1, str2;
     private int[][] f;
     private String [] str= {"Виборгська","Л Толстого","Перемоги","Володимирська","Тарасівська","Саксаганського"};
-
+    private int strnum = 5;
+    private Scanner scanner;
     /**
      * This method returns the distance between two Strings
      * in Damerau-Levenstein Metric.<br>
      * The returned value gives the number of basic transformations
      * needed to convert str2 into str1.<br>
      */
+    private void initdic () {
+            // read the file, fill the food list
+    int i=0;
+    try {
+      scanner = new Scanner(new FileReader("streets.txt"));
+      while (scanner.hasNext()) {
+        this.str[i]=scanner.nextLine();
+        i++;
+      }
+      strnum = i-1;
+      
+    } catch (FileNotFoundException e) {
+      System.exit(1);
+    }
+    }
+            
     public int calculateDistance(String s1, String s2) {
         str1 = s1;
         str2 = s2;
@@ -46,7 +67,7 @@ public class FuzzyMatching {
     public int bestfit(String s) {
        int rez = 800;
        int dmin=calculateDistance(s, str[1]);
-       for (int i=0;i<6;i++) {
+       for (int i=0;i<strnum;i++) {
            System.out.println(this.calculateDistance(s, str[i]));
            if (this.calculateDistance(s, str[i])<dmin) {
                dmin = this.calculateDistance(s, str[i]);
@@ -57,7 +78,7 @@ public class FuzzyMatching {
     }
     public static void main(String[] args) {
        FuzzyMatching d = new FuzzyMatching();
-       
+       //d.initdic();
        //System.out.println(d.calculateDistance("виборгська","биборгськой"));
        System.out.println("Final solution"+d.bestfit("Пунемоги"));
     }
