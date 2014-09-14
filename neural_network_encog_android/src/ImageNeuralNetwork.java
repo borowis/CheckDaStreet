@@ -68,9 +68,8 @@ public class ImageNeuralNetwork
 
     }
 
-    public String processWhatIs(String absolutePath) throws IOException {
-        File imgFile = new File(absolutePath);
-        Bitmap img = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+    public String processWhatIs(File file) throws IOException {
+        Bitmap img = BitmapFactory.decodeFile(file.getAbsolutePath());
         final AndroidImageMLData input = new AndroidImageMLData(img);
         input.downsample(this.downsample, false, this.downsampleHeight, this.downsampleWidth, 1, -1);
         final int winner = this.network.winner(input);
