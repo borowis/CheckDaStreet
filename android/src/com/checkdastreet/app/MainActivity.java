@@ -1,11 +1,14 @@
 package com.checkdastreet.app;
 
 import java.io.*;
+import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.hardware.Camera;
@@ -16,10 +19,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.*;
-import android.widget.FrameLayout;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.Toast;
+import android.widget.*;
 
 public class MainActivity extends Activity {
 
@@ -30,6 +30,8 @@ public class MainActivity extends Activity {
     LinearLayout mButtons;
     Context mContext;
     Uri fileUri;
+    private Uri mImageCaptureUri;
+    private ImageView mImageView;
     Intent intent;
     byte[] pictureData;
 
@@ -49,7 +51,7 @@ public class MainActivity extends Activity {
         File pictures = Environment
                 .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 
-        photoFile = new File(pictures, "myphoto.jpg");
+        photoFile = new File(pictures, "myphoto.gif");
 
         // кнопки
         mButtons = (LinearLayout) findViewById(R.id.buttons);
@@ -135,12 +137,27 @@ public class MainActivity extends Activity {
                 Uri pictureFile = generateFile();
                 try {
                     //SAVE TO FILE
+                    //Bitmap bmp;
 
                     FileOutputStream fos = new FileOutputStream(photoFile);
                     fos.write(data);
                     fos.close();
 
+                    //Graphis2D graphis2D
 
+                    Bitmap bmp;
+
+                    Intent intent = new Intent("com.android.camera.action.CROP");
+
+                    List<ResolveInfo> list = getPackageManager().queryIntentActivities( intent, 0 );
+
+                    int size = list.size();
+
+                    if (size == 0) {
+                        //Toast.makeText(getApplicationContext(), "Can not find image crop app", Toast.LENGTH_SHORT).show();
+
+                        //return;
+                    }
 
                     Toast.makeText(mContext, "Save file: " + photoFile.getName(), Toast.LENGTH_LONG).show();
                 } catch (Exception e) {

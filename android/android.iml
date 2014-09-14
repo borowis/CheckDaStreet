@@ -16,6 +16,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="neuroph-adapters-2.9" level="project" />
+    <orderEntry type="library" name="BoofCV-recognition-0.17" level="project" />
   </component>
 </module>
 
