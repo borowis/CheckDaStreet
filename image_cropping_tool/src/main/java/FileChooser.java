@@ -4,7 +4,6 @@ import java.awt.event.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.*;
 
 /*
  * FileChooserDemo.java uses these files:
