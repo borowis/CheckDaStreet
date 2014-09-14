@@ -4,6 +4,7 @@ public class FuzzyMatching {
 
   private String str1, str2;
     private int[][] f;
+    private String [] str= {"Виборгська","Л Толстого","Перемоги","Володимирська","Тарасівська","Саксаганського"};
 
     /**
      * This method returns the distance between two Strings
@@ -41,9 +42,24 @@ public class FuzzyMatching {
         } else
             return 0;
     }
+    
+    public int bestfit(String s) {
+       int rez = 800;
+       int dmin=calculateDistance(s, str[1]);
+       for (int i=0;i<6;i++) {
+           System.out.println(this.calculateDistance(s, str[i]));
+           if (this.calculateDistance(s, str[i])<dmin) {
+               dmin = this.calculateDistance(s, str[i]);
+               rez = i;
+           }
+       }
+       return rez;
+    }
     public static void main(String[] args) {
        FuzzyMatching d = new FuzzyMatching();
-       System.out.println(d.calculateDistance("виборгська","биборгськой"));
+       
+       //System.out.println(d.calculateDistance("виборгська","биборгськой"));
+       System.out.println("Final solution"+d.bestfit("Пунемоги"));
     }
     
 }
