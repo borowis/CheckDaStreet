@@ -1,0 +1,6 @@
+CreateTraining: width:30,height:50,type:RGB
+Input: directory:/home/borowis/hackathon/linguahack/data/mappedLetters/training, type:jpg
+Network: hidden1:300, hidden2:5
+Train: Mode:console, Minutes:120, StrategyError:0.25, StrategyCycles:150, Regularization:0
+Whatis: directory:/home/borowis/hackathon/linguahack/data/mappedLetters/verification, type:jpg
+Save:

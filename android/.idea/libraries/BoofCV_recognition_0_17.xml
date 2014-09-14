@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="BoofCV-recognition-0.17">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../boofcv-v0.17-libs/BoofCV-ip-0.17.jar!/" />
+      <root url="jar://$PROJECT_DIR$/../../../boofcv-v0.17-libs/BoofCV-android-0.17.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
