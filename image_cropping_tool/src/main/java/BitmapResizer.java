@@ -4,8 +4,8 @@ import java.awt.image.BufferedImage;
 
 public class BitmapResizer {
 
-    private static final int HEIGHT = 30;
-    private static final int WIDTH = 50;
+    private static final int HEIGHT = 50;
+    private static final int WIDTH = 30;
 
     public static BufferedImage fitToSize(BufferedImage originalImage) {
 

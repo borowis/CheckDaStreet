@@ -13,6 +13,7 @@ public class Cropping extends JPanel
     Rectangle clip;
     int clipWidth, clipHeight;
     boolean showClip;
+    String lastResult;
 
     public Cropping(BufferedImage image, int clipWidth, int clipHeight)
     {
@@ -84,10 +85,13 @@ public class Cropping extends JPanel
             return;
         }
         JLabel label = new JLabel(new ImageIcon(clipped));
-        String result = JOptionPane.showInputDialog(this, label, "clipped image", JOptionPane.OK_CANCEL_OPTION);
+        String result = (String)JOptionPane.showInputDialog(this, label, "clipped image", JOptionPane.OK_CANCEL_OPTION, null, null, lastResult);
 
         if (result != null && !result.isEmpty())
+        {
+            lastResult = result;
             new FileSaver(BitmapResizer.fitToSize(clipped), result).save();
+        }
     }
 
     protected JPanel getUIPanel()
