@@ -2,6 +2,7 @@ import org.encog.EncogError;
 import org.encog.engine.network.activation.ActivationElliott;
 import org.encog.ml.train.strategy.Greedy;
 import org.encog.ml.train.strategy.ResetStrategy;
+import org.encog.ml.train.strategy.StopTrainingStrategy;
 import org.encog.neural.data.NeuralData;
 import org.encog.neural.data.basic.BasicNeuralData;
 import org.encog.neural.networks.BasicNetwork;
@@ -27,6 +28,7 @@ import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -136,6 +138,10 @@ public class ImageNeuralNetwork
         else if (command.equals("save"))
         {
             processSave();
+        }
+        else if (command.equals("restore"))
+        {
+            processRestore();
         }
     }
 
@@ -267,7 +273,8 @@ public class ImageNeuralNetwork
         final int strategyCycles = Integer.parseInt(strStrategyCycles);
         final double regularization = Double.parseDouble(strRegularization);
         final ResilientPropagation train = new ResilientPropagation(this.network, this.training);
-        train.addStrategy(new ResetStrategy(strategyError, strategyCycles));
+        //train.addStrategy(new ResetStrategy(strategyError, strategyCycles));
+        train.addStrategy(new StopTrainingStrategy(0.01, 100));
         if (regularization > 0)
             train.addStrategy(new RegularizationStrategy(regularization));
         if (strMode.equalsIgnoreCase("gui")) {
@@ -301,11 +308,13 @@ public class ImageNeuralNetwork
     }
     private void processSave()
     {
+        FileWriter fStream = null;
+        BufferedWriter writer = null;
         try
         {
             // write name -> int correspondence i.e. "A" -> 2
-            FileWriter fStream = new FileWriter("identity2neuron.txt");
-            BufferedWriter writer = new BufferedWriter(fStream);
+            fStream = new FileWriter("identity2neuron.txt");
+            writer = new BufferedWriter(fStream);
             for (Map.Entry<String, Integer> entrySet : identity2neuron.entrySet())
             {
                 writer.write(entrySet.getKey() + ":" + entrySet.getValue() + "\n");
@@ -313,9 +322,69 @@ public class ImageNeuralNetwork
             writer.close();
 
             EncogDirectoryPersistence.saveObject(new File("network.txt"), this.network);
+            System.out.println("Network persisted to disk (see identity2neuron.txt and network.txt)...");
         }
         catch (Exception ex)
         {
         }
+        finally
+        {
+            try
+            {
+                if (writer != null)
+                    writer.close();
+                if (fStream != null)
+                    fStream.close();
+            } catch (IOException ioex) {}
+        }
+    }
+    private void processRestore()
+    {
+        File network = new File("network.txt");
+        if (!network.exists())
+            throw new IllegalArgumentException("network description file doesn't exist!");
+        File identity2neuron = new File("identity2neuron.txt");
+        if (!identity2neuron.exists())
+            throw new IllegalArgumentException("neuron identity file doesn't exist!");
+
+        this.network = (BasicNetwork)EncogDirectoryPersistence.loadObject(network);
+
+        FileReader fStream = null;
+        BufferedReader br = null;
+        try
+        {
+            fStream = new FileReader(identity2neuron);
+            br = new BufferedReader(fStream);
+
+            String line;
+            while ((line = br.readLine()) != null)
+            {
+                if (!line.isEmpty())
+                {
+                    String[] tokens = line.split(":");
+                    String key = tokens[0];
+                    Integer value = Integer.valueOf(tokens[1]);
+
+                    this.identity2neuron.put(key, value);
+                    if (!neuron2identity.containsKey(value))
+                        this.neuron2identity.put(value, key);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+        finally
+        {
+            try
+            {
+                if (br != null)
+                    br.close();
+                if (fStream != null)
+                    fStream.close();
+            } catch (IOException ioex) {}
+        }
+        System.out.println("Network restored from disk...");
     }
 }

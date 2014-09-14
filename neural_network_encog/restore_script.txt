@@ -1,0 +1,3 @@
+CreateTraining: width:30,height:50,type:RGB
+Restore:
+Whatis: directory:/home/borowis/hackathon/linguahack/data/mappedLetters/verification, type:jpg
