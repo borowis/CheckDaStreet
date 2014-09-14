@@ -23,9 +23,11 @@ import org.encog.util.simple.EncogUtility;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -84,13 +86,13 @@ public class ImageNeuralNetwork
 
     private int assignIdentity(final String identity)
     {
-        if (this.identity2neuron.containsKey(identity.toLowerCase()))
+        if (this.identity2neuron.containsKey(identity))
         {
-            return this.identity2neuron.get(identity.toLowerCase());
+            return this.identity2neuron.get(identity);
         }
         final int result = this.outputCount;
-        this.identity2neuron.put(identity.toLowerCase(), result);
-        this.neuron2identity.put(result, identity.toLowerCase());
+        this.identity2neuron.put(identity, result);
+        this.neuron2identity.put(result, identity);
         this.outputCount++;
         return result;
     }
@@ -299,6 +301,21 @@ public class ImageNeuralNetwork
     }
     private void processSave()
     {
-        EncogDirectoryPersistence.saveObject(new File("network.txt"), this.network);
+        try
+        {
+            // write name -> int correspondence i.e. "A" -> 2
+            FileWriter fStream = new FileWriter("identity2neuron.txt");
+            BufferedWriter writer = new BufferedWriter(fStream);
+            for (Map.Entry<String, Integer> entrySet : identity2neuron.entrySet())
+            {
+                writer.write(entrySet.getKey() + ":" + entrySet.getValue() + "\n");
+            }
+            writer.close();
+
+            EncogDirectoryPersistence.saveObject(new File("network.txt"), this.network);
+        }
+        catch (Exception ex)
+        {
+        }
     }
 }
