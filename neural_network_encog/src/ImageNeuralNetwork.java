@@ -7,6 +7,7 @@ import org.encog.neural.data.basic.BasicNeuralData;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.layers.BasicLayer;
 import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
+import org.encog.neural.networks.training.strategy.RegularizationStrategy;
 import org.encog.neural.networks.training.strategy.SmartLearningRate;
 import org.encog.neural.networks.training.strategy.SmartMomentum;
 import org.encog.neural.pattern.ElmanPattern;
@@ -257,12 +258,16 @@ public class ImageNeuralNetwork
         final String strMinutes = getArg("minutes");
         final String strStrategyError = getArg("strategyerror");
         final String strStrategyCycles = getArg("strategycycles");
+        final String strRegularization = getArg("regularization");
         System.out.println("Training Beginning... Output patterns="
                         + this.outputCount);
         final double strategyError = Double.parseDouble(strStrategyError);
         final int strategyCycles = Integer.parseInt(strStrategyCycles);
+        final double regularization = Double.parseDouble(strRegularization);
         final ResilientPropagation train = new ResilientPropagation(this.network, this.training);
         train.addStrategy(new ResetStrategy(strategyError, strategyCycles));
+        if (regularization > 0)
+            train.addStrategy(new RegularizationStrategy(regularization));
         if (strMode.equalsIgnoreCase("gui")) {
             TrainingDialog.trainDialog(train, this.network, this.training);
         } else {
