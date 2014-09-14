@@ -1,6 +1,6 @@
 CreateTraining: width:50,height:30,type:RGB
-Input: directory:/home/borowis/hackathon/linguahack/neural_network_encog/data/training, type:jpg
+Input: directory:/home/borowis/hackathon/linguahack/data/mappedLetters/training, type:jpg
 Network: hidden1:300, hidden2:5
 Train: Mode:console, Minutes:10, StrategyError:0.25, StrategyCycles:150 
-Whatis: directory:/home/borowis/hackathon/linguahack/neural_network_encog/data/verification, type:jpg
+Whatis: directory:/home/borowis/hackathon/linguahack/data/mappedLetters/verification, type:jpg
 Save:
