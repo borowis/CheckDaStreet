@@ -1,5 +1,6 @@
 import org.encog.EncogError;
 import org.encog.engine.network.activation.ActivationElliott;
+import org.encog.ml.data.folded.FoldedDataSet;
 import org.encog.ml.train.strategy.Greedy;
 import org.encog.ml.train.strategy.ResetStrategy;
 import org.encog.ml.train.strategy.StopTrainingStrategy;
@@ -7,15 +8,18 @@ import org.encog.neural.data.NeuralData;
 import org.encog.neural.data.basic.BasicNeuralData;
 import org.encog.neural.networks.BasicNetwork;
 import org.encog.neural.networks.layers.BasicLayer;
+import org.encog.neural.networks.training.cross.CrossValidationKFold;
 import org.encog.neural.networks.training.propagation.resilient.ResilientPropagation;
 import org.encog.neural.networks.training.strategy.RegularizationStrategy;
 import org.encog.neural.networks.training.strategy.SmartLearningRate;
 import org.encog.neural.networks.training.strategy.SmartMomentum;
+import org.encog.neural.pattern.ADALINEPattern;
 import org.encog.neural.pattern.ElmanPattern;
 import org.encog.persist.EncogDirectoryPersistence;
 import org.encog.platformspecific.j2se.TrainingDialog;
 import org.encog.platformspecific.j2se.data.image.ImageMLData;
 import org.encog.platformspecific.j2se.data.image.ImageMLDataSet;
+import org.encog.util.Format;
 import org.encog.util.downsample.Downsample;
 import org.encog.util.downsample.RGBDownsample;
 import org.encog.util.downsample.SimpleIntensityDownsample;
@@ -78,7 +82,7 @@ public class ImageNeuralNetwork
     private final Map<String, String>  args            = new HashMap<String, String>();
     private final Map<String, Integer> identity2neuron = new HashMap<String, Integer>();
     private final Map<Integer, String> neuron2identity = new HashMap<Integer, String>();
-    private ImageMLDataSet training;
+    private ImageMLDataSet     training;
     private String             line;
     private int                outputCount;
     private int                downsampleWidth;
@@ -188,8 +192,8 @@ public class ImageNeuralNetwork
         } else {
             this.downsample = new SimpleIntensityDownsample();
         }
-        this.training = new ImageMLDataSet(this.downsample,
-                false, 1, -1);
+
+        this.training = new ImageMLDataSet(this.downsample, false, 1, -1);
         System.out.println("Training set created");
     }
     private void processInput() throws IOException {
@@ -233,7 +237,8 @@ public class ImageNeuralNetwork
         }
         final String strHidden1 = getArg("hidden1");
         final String strHidden2 = getArg("hidden2");
-        this.training.downsample(this.downsampleHeight, this.downsampleWidth);
+        ImageMLDataSet imageDataSet = this.training;
+        imageDataSet.downsample(this.downsampleHeight, this.downsampleWidth);
         final int hidden1 = Integer.parseInt(strHidden1);
         final int hidden2 = Integer.parseInt(strHidden2);
 
@@ -245,15 +250,16 @@ public class ImageNeuralNetwork
 
         this.network = (BasicNetwork)pattern.generate();
 
+//        BasicLayer input, hiddenLayer1, hiddenLayer2;
 //        this.network = new BasicNetwork();
-//
-//        this.network.addLayer(new BasicLayer(null, true, this.downsampleHeight * this.downsampleWidth));
-//        this.network.addLayer(new BasicLayer(new ActivationElliott(), true, hidden1));
-//        this.network.addLayer(new BasicLayer(new ActivationElliott(), false, hidden2));
-//        this.network.addLayer(new BasicLayer(new ActivationElliott(), false, this.training.getIdealSize()));
-//
-//        this.network.getStructure().finalizeStructure();
-//        this.network.reset();
+//        network.addLayer(input = new BasicLayer(new ActivationElliott(), true, this.training.getInputSize()));
+//        network.addLayer(hiddenLayer1 = new BasicLayer(new ActivationElliott(), true, hidden1));
+//        network.addLayer(hiddenLayer2 = new BasicLayer(new ActivationElliott(), true, hidden2));
+//        network.addLayer(new BasicLayer(null, false, this.training.getIdealSize()));
+//        input.setContextFedBy(hiddenLayer1);
+//        hiddenLayer1.setContextFedBy(hiddenLayer2);
+//        network.getStructure().finalizeStructure();
+//        network.reset();
 
 //        this.network = EncogUtility.simpleFeedForward(
 //                this.training.getInputSize(), hidden1, hidden2,
@@ -267,21 +273,45 @@ public class ImageNeuralNetwork
         final String strStrategyError = getArg("strategyerror");
         final String strStrategyCycles = getArg("strategycycles");
         final String strRegularization = getArg("regularization");
-        System.out.println("Training Beginning... Output patterns="
-                        + this.outputCount);
+        System.out.println("Training Beginning... Output patterns=" + this.outputCount);
         final double strategyError = Double.parseDouble(strStrategyError);
         final int strategyCycles = Integer.parseInt(strStrategyCycles);
         final double regularization = Double.parseDouble(strRegularization);
-        final ResilientPropagation train = new ResilientPropagation(this.network, this.training);
-        //train.addStrategy(new ResetStrategy(strategyError, strategyCycles));
-        train.addStrategy(new StopTrainingStrategy(0.01, 100));
+        final ResilientPropagation train = new ResilientPropagation(this.network, new FoldedDataSet(this.training));
+        train.addStrategy(new ResetStrategy(strategyError, strategyCycles));
+        //train.addStrategy(new StopTrainingStrategy(0.01, 100));
+
         if (regularization > 0)
             train.addStrategy(new RegularizationStrategy(regularization));
+
+        final CrossValidationKFold kFoldTrain = new CrossValidationKFold(train, 2);
         if (strMode.equalsIgnoreCase("gui")) {
-            TrainingDialog.trainDialog(train, this.network, this.training);
+            TrainingDialog.trainDialog(kFoldTrain, this.network, this.training);
         } else {
             final int minutes = Integer.parseInt(strMinutes);
-            EncogUtility.trainConsole(train, this.network, this.training, minutes);
+            int iteration = 0;
+            double error = 0.0001;
+            long remaining;
+
+            System.out.println("Beginning training...");
+            final long start = System.currentTimeMillis();
+            do {
+                train.iteration();
+
+                final long current = System.currentTimeMillis();
+                final long elapsed = (current - start) / 1000; // seconds
+                remaining = minutes - elapsed / 60;
+
+                iteration++;
+
+                System.out.println("Iteration #" + Format.formatInteger(iteration)
+                                + " Error:" + Format.formatPercent(train.getError())
+                                + " elapsed time = " + Format.formatTimeSpan((int) elapsed)
+                                + " time left = "
+                                + Format.formatTimeSpan((int) remaining * 60));
+
+            } while (remaining > 0 && train.getError() > error && !train.isTrainingDone());
+            train.finishTraining();
         }
         System.out.println("Training Stopped...");
     }
